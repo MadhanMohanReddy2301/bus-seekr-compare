@@ -194,7 +194,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
 
           {/* Search Button */}
           <div className="md:col-span-1">
-            <Button onClick={handleSearch} disabled={!source.trim() || !destination.trim() || isLoading} size="lg" className="w-full hero-gradient text-white font-semibold transition-bounce hover:shadow-glow mx-0 px-[390px] my-[20px] py-0">
+            <Button onClick={handleSearch} disabled={!source.trim() || !destination.trim() || isLoading} size="lg" className="w-full hero-gradient text-white font-semibold transition-bounce hover:shadow-glow px-4 md:px-8 py-3 my-4">
               {isLoading ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" /> : <Search className="w-4 h-4 mr-2" />}
               {isLoading ? 'Searching...' : 'Search'}
             </Button>
