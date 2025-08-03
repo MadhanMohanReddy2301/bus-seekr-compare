@@ -6,13 +6,11 @@ import { Card } from '@/components/ui/card';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
-
 interface City {
   id: string;
   name: string;
   state?: string;
 }
-
 interface SearchFormProps {
   onSearch: (searchData: {
     source: string;
@@ -20,8 +18,9 @@ interface SearchFormProps {
     date: Date;
   }) => void;
 }
-
-const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
+const SearchForm: React.FC<SearchFormProps> = ({
+  onSearch
+}) => {
   const [source, setSource] = useState('');
   const [destination, setDestination] = useState('');
   const [date, setDate] = useState<Date>(new Date());
@@ -30,16 +29,11 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
   const [showSourceSuggestions, setShowSourceSuggestions] = useState(false);
   const [showDestinationSuggestions, setShowDestinationSuggestions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
   const fetchCitySuggestions = async (query: string): Promise<City[]> => {
     if (query.length < 1) return [];
-    
     try {
-      const response = await fetch(
-        `https://www.abhibus.com/wap/abus-autocompleter/api/v1/results?s=${encodeURIComponent(query)}`
-      );
+      const response = await fetch(`https://www.abhibus.com/wap/abus-autocompleter/api/v1/results?s=${encodeURIComponent(query)}`);
       const data = await response.json();
-      
       if (data && Array.isArray(data)) {
         return data.map((city: any) => ({
           id: city.id.toString(),
@@ -51,20 +45,42 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
     } catch (error) {
       console.error('Error fetching city suggestions:', error);
       // Fallback to mock data for demonstration
-      const mockCities = [
-        { id: '1', name: 'Mumbai', state: 'Maharashtra' },
-        { id: '2', name: 'Delhi', state: 'Delhi' },
-        { id: '3', name: 'Bangalore', state: 'Karnataka' },
-        { id: '4', name: 'Chennai', state: 'Tamil Nadu' },
-        { id: '5', name: 'Kolkata', state: 'West Bengal' },
-        { id: '6', name: 'Hyderabad', state: 'Telangana' },
-        { id: '7', name: 'Pune', state: 'Maharashtra' },
-        { id: '8', name: 'Ahmedabad', state: 'Gujarat' }
-      ].filter(city => city.name.toLowerCase().includes(query.toLowerCase()));
+      const mockCities = [{
+        id: '1',
+        name: 'Mumbai',
+        state: 'Maharashtra'
+      }, {
+        id: '2',
+        name: 'Delhi',
+        state: 'Delhi'
+      }, {
+        id: '3',
+        name: 'Bangalore',
+        state: 'Karnataka'
+      }, {
+        id: '4',
+        name: 'Chennai',
+        state: 'Tamil Nadu'
+      }, {
+        id: '5',
+        name: 'Kolkata',
+        state: 'West Bengal'
+      }, {
+        id: '6',
+        name: 'Hyderabad',
+        state: 'Telangana'
+      }, {
+        id: '7',
+        name: 'Pune',
+        state: 'Maharashtra'
+      }, {
+        id: '8',
+        name: 'Ahmedabad',
+        state: 'Gujarat'
+      }].filter(city => city.name.toLowerCase().includes(query.toLowerCase()));
       return mockCities;
     }
   };
-
   const handleSourceChange = async (value: string) => {
     setSource(value);
     if (value.length >= 1) {
@@ -75,7 +91,6 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
       setShowSourceSuggestions(false);
     }
   };
-
   const handleDestinationChange = async (value: string) => {
     setDestination(value);
     if (value.length >= 1) {
@@ -86,13 +101,11 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
       setShowDestinationSuggestions(false);
     }
   };
-
   const swapCities = () => {
     const temp = source;
     setSource(destination);
     setDestination(temp);
   };
-
   const handleSearch = () => {
     if (source.trim() && destination.trim()) {
       setIsLoading(true);
@@ -104,17 +117,13 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
       setTimeout(() => setIsLoading(false), 2000); // Simulate API call
     }
   };
-
-  return (
-    <Card className="card-gradient shadow-travel p-6 w-full max-w-4xl mx-auto">
+  return <Card className="card-gradient shadow-travel p-6 w-full max-w-4xl mx-auto my-[100px]">
       <div className="space-y-6">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-foreground mb-2">
             Find Your Perfect Bus Journey
           </h2>
-          <p className="text-muted-foreground">
-            Compare prices across all major bus booking platforms
-          </p>
+          <p className="text-muted-foreground">Compare prices across all major bus booking platforms</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-0 items-end bg-background/50 rounded-lg p-2 border">
@@ -125,44 +134,22 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
               From
             </label>
             <div className="relative">
-              <Input
-                type="text"
-                placeholder="Enter source city"
-                value={source}
-                onChange={(e) => handleSourceChange(e.target.value)}
-                className="w-full transition-smooth"
-                onFocus={() => source.length >= 1 && setShowSourceSuggestions(true)}
-              />
-              {showSourceSuggestions && sourceSuggestions.length > 0 && (
-                <Card className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-auto bg-popover border shadow-lg">
-                  {sourceSuggestions.map((city) => (
-                    <div
-                      key={city.id}
-                      className="p-3 hover:bg-accent cursor-pointer transition-smooth"
-                      onClick={() => {
-                        setSource(city.name);
-                        setShowSourceSuggestions(false);
-                      }}
-                    >
+              <Input type="text" placeholder="Enter source city" value={source} onChange={e => handleSourceChange(e.target.value)} className="w-full transition-smooth" onFocus={() => source.length >= 1 && setShowSourceSuggestions(true)} />
+              {showSourceSuggestions && sourceSuggestions.length > 0 && <Card className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-auto bg-popover border shadow-lg">
+                  {sourceSuggestions.map(city => <div key={city.id} className="p-3 hover:bg-accent cursor-pointer transition-smooth" onClick={() => {
+                setSource(city.name);
+                setShowSourceSuggestions(false);
+              }}>
                       <div className="font-medium">{city.name}</div>
-                      {city.state && (
-                        <div className="text-sm text-muted-foreground">{city.state}</div>
-                      )}
-                    </div>
-                  ))}
-                </Card>
-              )}
+                      {city.state && <div className="text-sm text-muted-foreground">{city.state}</div>}
+                    </div>)}
+                </Card>}
             </div>
           </div>
 
           {/* Swap Button */}
           <div className="md:col-span-1 flex justify-center">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={swapCities}
-              className="transition-bounce hover:rotate-180"
-            >
+            <Button variant="outline" size="icon" onClick={swapCities} className="transition-bounce hover:rotate-180">
               <ArrowLeftRight className="h-4 w-4" />
             </Button>
           </div>
@@ -174,33 +161,16 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
               To
             </label>
             <div className="relative">
-              <Input
-                type="text"
-                placeholder="Enter destination city"
-                value={destination}
-                onChange={(e) => handleDestinationChange(e.target.value)}
-                className="w-full transition-smooth"
-                onFocus={() => destination.length >= 1 && setShowDestinationSuggestions(true)}
-              />
-              {showDestinationSuggestions && destinationSuggestions.length > 0 && (
-                <Card className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-auto bg-popover border shadow-lg">
-                  {destinationSuggestions.map((city) => (
-                    <div
-                      key={city.id}
-                      className="p-3 hover:bg-accent cursor-pointer transition-smooth"
-                      onClick={() => {
-                        setDestination(city.name);
-                        setShowDestinationSuggestions(false);
-                      }}
-                    >
+              <Input type="text" placeholder="Enter destination city" value={destination} onChange={e => handleDestinationChange(e.target.value)} className="w-full transition-smooth" onFocus={() => destination.length >= 1 && setShowDestinationSuggestions(true)} />
+              {showDestinationSuggestions && destinationSuggestions.length > 0 && <Card className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-auto bg-popover border shadow-lg">
+                  {destinationSuggestions.map(city => <div key={city.id} className="p-3 hover:bg-accent cursor-pointer transition-smooth" onClick={() => {
+                setDestination(city.name);
+                setShowDestinationSuggestions(false);
+              }}>
                       <div className="font-medium">{city.name}</div>
-                      {city.state && (
-                        <div className="text-sm text-muted-foreground">{city.state}</div>
-                      )}
-                    </div>
-                  ))}
-                </Card>
-              )}
+                      {city.state && <div className="text-sm text-muted-foreground">{city.state}</div>}
+                    </div>)}
+                </Card>}
             </div>
           </div>
 
@@ -212,45 +182,25 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
             </label>
             <Popover>
               <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-left font-normal"
-                >
+                <Button variant="outline" className="w-full justify-start text-left font-normal">
                   {format(date, 'PPP')}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-                <CalendarComponent
-                  mode="single"
-                  selected={date}
-                  onSelect={(date) => date && setDate(date)}
-                  disabled={(date) => date < new Date()}
-                  initialFocus
-                />
+                <CalendarComponent mode="single" selected={date} onSelect={date => date && setDate(date)} disabled={date => date < new Date()} initialFocus />
               </PopoverContent>
             </Popover>
           </div>
 
           {/* Search Button */}
           <div className="md:col-span-1">
-            <Button
-              onClick={handleSearch}
-              disabled={!source.trim() || !destination.trim() || isLoading}
-              className="w-full hero-gradient text-white font-semibold transition-bounce hover:shadow-glow"
-              size="lg"
-            >
-              {isLoading ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-              ) : (
-                <Search className="w-4 h-4 mr-2" />
-              )}
+            <Button onClick={handleSearch} disabled={!source.trim() || !destination.trim() || isLoading} size="lg" className="w-full hero-gradient text-white font-semibold transition-bounce hover:shadow-glow mx-0 px-[390px] my-[20px] py-0">
+              {isLoading ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" /> : <Search className="w-4 h-4 mr-2" />}
               {isLoading ? 'Searching...' : 'Search'}
             </Button>
           </div>
         </div>
       </div>
-    </Card>
-  );
+    </Card>;
 };
-
 export default SearchForm;
