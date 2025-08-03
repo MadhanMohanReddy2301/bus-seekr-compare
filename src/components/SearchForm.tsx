@@ -32,20 +32,19 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchCitySuggestions = async (query: string): Promise<City[]> => {
-    if (query.length < 2) return [];
+    if (query.length < 1) return [];
     
     try {
-      // Using a CORS proxy to handle the API call
-      const proxyUrl = 'https://api.allorigins.win/raw?url=';
-      const targetUrl = `https://www.abhibus.com/wap/abus-autocompleter/api/v1/results?s=${encodeURIComponent(query)}`;
-      const response = await fetch(proxyUrl + encodeURIComponent(targetUrl));
+      const response = await fetch(
+        `https://www.abhibus.com/wap/abus-autocompleter/api/v1/results?s=${encodeURIComponent(query)}`
+      );
       const data = await response.json();
       
-      if (data && data.results) {
-        return data.results.map((city: any) => ({
-          id: city.id || city.name,
-          name: city.name,
-          state: city.state
+      if (data && Array.isArray(data)) {
+        return data.map((city: any) => ({
+          id: city.id.toString(),
+          name: city.city,
+          state: city.state_name
         }));
       }
       return [];
@@ -68,7 +67,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
 
   const handleSourceChange = async (value: string) => {
     setSource(value);
-    if (value.length >= 2) {
+    if (value.length >= 1) {
       const suggestions = await fetchCitySuggestions(value);
       setSourceSuggestions(suggestions);
       setShowSourceSuggestions(true);
@@ -79,7 +78,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
 
   const handleDestinationChange = async (value: string) => {
     setDestination(value);
-    if (value.length >= 2) {
+    if (value.length >= 1) {
       const suggestions = await fetchCitySuggestions(value);
       setDestinationSuggestions(suggestions);
       setShowDestinationSuggestions(true);
@@ -118,7 +117,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-0 items-end bg-background/50 rounded-lg p-2 border">
           {/* Source City */}
           <div className="md:col-span-4 relative">
             <label className="block text-sm font-medium text-foreground mb-2">
@@ -132,7 +131,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
                 value={source}
                 onChange={(e) => handleSourceChange(e.target.value)}
                 className="w-full transition-smooth"
-                onFocus={() => source.length >= 2 && setShowSourceSuggestions(true)}
+                onFocus={() => source.length >= 1 && setShowSourceSuggestions(true)}
               />
               {showSourceSuggestions && sourceSuggestions.length > 0 && (
                 <Card className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-auto bg-popover border shadow-lg">
@@ -181,7 +180,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
                 value={destination}
                 onChange={(e) => handleDestinationChange(e.target.value)}
                 className="w-full transition-smooth"
-                onFocus={() => destination.length >= 2 && setShowDestinationSuggestions(true)}
+                onFocus={() => destination.length >= 1 && setShowDestinationSuggestions(true)}
               />
               {showDestinationSuggestions && destinationSuggestions.length > 0 && (
                 <Card className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-auto bg-popover border shadow-lg">
@@ -241,10 +240,11 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
               size="lg"
             >
               {isLoading ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
               ) : (
-                <Search className="w-4 h-4" />
+                <Search className="w-4 h-4 mr-2" />
               )}
+              {isLoading ? 'Searching...' : 'Search'}
             </Button>
           </div>
         </div>
