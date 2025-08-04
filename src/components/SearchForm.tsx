@@ -83,7 +83,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
       setTimeout(() => setIsLoading(false), 2000); // Simulate API call
     }
   };
-  return <Card className="card-gradient shadow-travel p-6 w-full max-w-4xl mx-auto my-[100px]">
+  return <Card className="card-gradient shadow-travel p-6 w-full max-w-4xl mx-auto my-[10px]">
       <div className="space-y-6">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-foreground mb-2">
