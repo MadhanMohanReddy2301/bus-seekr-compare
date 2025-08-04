@@ -94,7 +94,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
 
         <div className="space-y-4">
           {/* Input Fields Row */}
-          <div className="grid grid-cols-1 md:grid-cols-8 gap-4 items-end bg-background/50 rounded-lg p-4 border">
+          <div className="grid grid-cols-1 md:grid-cols-10 gap-4 items-end bg-background/50 rounded-lg p-4 border">
             {/* Source City */}
             <div className="md:col-span-3 relative">
               <label className="block text-sm font-medium text-foreground mb-2">
@@ -143,7 +143,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
             </div>
 
             {/* Date Picker */}
-            <div className="md:col-span-1">
+            <div className="md:col-span-3">
               <label className="block text-sm font-medium text-foreground mb-2">
                 <Calendar className="w-4 h-4 inline mr-1" />
                 Journey Date
