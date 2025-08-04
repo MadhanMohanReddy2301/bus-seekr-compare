@@ -32,7 +32,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
   const fetchCitySuggestions = async (query: string): Promise<City[]> => {
     if (query.length < 1) return [];
     try {
-      const response = await fetch(`https://www.abhibus.com/wap/abus-autocompleter/api/v1/results?s=${encodeURIComponent(query)}`);
+      const response = await fetch(`https://cors-anywhere.herokuapp.com/https://www.abhibus.com/wap/abus-autocompleter/api/v1/results?s=${encodeURIComponent(query)}`);
       const data = await response.json();
       if (data && Array.isArray(data)) {
         return data.map((city: any) => ({
