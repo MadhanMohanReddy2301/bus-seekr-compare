@@ -37,48 +37,14 @@ const SearchForm: React.FC<SearchFormProps> = ({
       if (data && Array.isArray(data)) {
         return data.map((city: any) => ({
           id: city.id.toString(),
-          name: city.city,
-          state: city.state_name
+          name: city.display_text,
+          state: city.display_subtext
         }));
       }
       return [];
     } catch (error) {
       console.error('Error fetching city suggestions:', error);
-      // Fallback to mock data for demonstration
-      const mockCities = [{
-        id: '1',
-        name: 'Mumbai',
-        state: 'Maharashtra'
-      }, {
-        id: '2',
-        name: 'Delhi',
-        state: 'Delhi'
-      }, {
-        id: '3',
-        name: 'Bangalore',
-        state: 'Karnataka'
-      }, {
-        id: '4',
-        name: 'Chennai',
-        state: 'Tamil Nadu'
-      }, {
-        id: '5',
-        name: 'Kolkata',
-        state: 'West Bengal'
-      }, {
-        id: '6',
-        name: 'Hyderabad',
-        state: 'Telangana'
-      }, {
-        id: '7',
-        name: 'Pune',
-        state: 'Maharashtra'
-      }, {
-        id: '8',
-        name: 'Ahmedabad',
-        state: 'Gujarat'
-      }].filter(city => city.name.toLowerCase().includes(query.toLowerCase()));
-      return mockCities;
+      return [];
     }
   };
   const handleSourceChange = async (value: string) => {
