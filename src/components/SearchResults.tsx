@@ -3,8 +3,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Clock, Users, Zap, Star, IndianRupee, ExternalLink } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Clock, Users, Zap, Star, IndianRupee, ExternalLink, Search, MapPin, Calendar as CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
 import FilterSidebar from './FilterSidebar';
+import { BusSearchResponse, BusData, citySuggestionsApi, busSearchApi } from '@/config/api';
 
 interface Bus {
   id: string;
@@ -25,11 +30,12 @@ interface SearchResultsProps {
     source: string;
     destination: string;
     date: Date;
+    busData?: BusSearchResponse[];
   };
 }
 
 const SearchResults: React.FC<SearchResultsProps> = ({ searchData }) => {
-  const [sortBy, setSortBy] = useState<'price' | 'duration' | 'departure'>('price');
+  const [sortBy, setSortBy] = useState<'price' | 'price-high' | 'duration' | 'departure' | 'departure-late'>('price');
   const [filters, setFilters] = useState({
     priceRange: [0, 3000] as [number, number],
     departureTime: 'any',
@@ -37,7 +43,132 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchData }) => {
     operator: 'any'
   });
 
-  // Mock data - in real implementation, this would come from API calls
+  // Search functionality state
+  const [newSearchSource, setNewSearchSource] = useState(searchData.source);
+  const [newSearchDestination, setNewSearchDestination] = useState(searchData.destination);
+  const [newSearchDate, setNewSearchDate] = useState(searchData.date);
+  const [sourceSuggestions, setSourceSuggestions] = useState<Array<{id: string, name: string, state?: string}>>([]);
+  const [destinationSuggestions, setDestinationSuggestions] = useState<Array<{id: string, name: string, state?: string}>>([]);
+  const [showSourceSuggestions, setShowSourceSuggestions] = useState(false);
+  const [showDestinationSuggestions, setShowDestinationSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+
+  // Debounced function for city suggestions
+  const debounce = (func: Function, delay: number) => {
+    let timeoutId: NodeJS.Timeout;
+    return (...args: any[]) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func.apply(null, args), delay);
+    };
+  };
+
+  const fetchCitySuggestions = async (query: string): Promise<Array<{id: string, name: string, state?: string}>> => {
+    if (query.length < 1) return [];
+    
+    try {
+      const data = await citySuggestionsApi.get(query);
+      
+      if (data && data.matches && Array.isArray(data.matches)) {
+        return data.matches.map((city: any) => ({
+          id: city.id.toString(),
+          name: city.display_text,
+          state: city.state || ''
+        }));
+      }
+      return [];
+    } catch (error) {
+      console.error('Error fetching city suggestions:', error);
+      return [];
+    }
+  };
+
+  const debouncedSourceSearch = debounce(async (query: string) => {
+    if (query.length >= 1) {
+      const suggestions = await fetchCitySuggestions(query);
+      setSourceSuggestions(suggestions);
+    } else {
+      setSourceSuggestions([]);
+    }
+  }, 300);
+
+  const debouncedDestinationSearch = debounce(async (query: string) => {
+    if (query.length >= 1) {
+      const suggestions = await fetchCitySuggestions(query);
+      setDestinationSuggestions(suggestions);
+    } else {
+      setDestinationSuggestions([]);
+    }
+  }, 300);
+
+  const handleNewSearch = async () => {
+    if (newSearchSource.trim() && newSearchDestination.trim()) {
+      setIsSearching(true);
+      try {
+        const formattedDate = format(newSearchDate, 'yyyy-MM-dd');
+        const allBusData = await busSearchApi.searchAll(
+          newSearchSource.trim(),
+          newSearchDestination.trim(),
+          formattedDate
+        );
+        
+        // Update the search data
+        searchData.source = newSearchSource.trim();
+        searchData.destination = newSearchDestination.trim();
+        searchData.date = newSearchDate;
+        searchData.busData = allBusData;
+        
+        // Force re-render by updating state
+        setSortBy(sortBy);
+      } catch (error) {
+        console.error('Error in new search:', error);
+      } finally {
+        setIsSearching(false);
+      }
+    }
+  };
+
+  // Convert real bus data to our internal format
+  const convertBusData = (busData: BusData): Bus => ({
+    id: `${busData.TravelsName}-${busData.StartTime}`,
+    operator: busData.TravelsName,
+    departureTime: busData.StartTime,
+    arrivalTime: busData.ArriveTime,
+    duration: busData.TravelTime,
+    busType: busData.BusType,
+    amenities: getAmenitiesFromBusType(busData.BusType),
+    availableSeats: parseInt(busData.AvailableSeats),
+    price: parseInt(busData.Price || busData.price || '0'), // Handle both Price and price fields
+    rating: 4.2, // Default rating since not provided by API
+    platform: 'abhibus' as const
+  });
+
+  // Helper function to get amenities based on bus type
+  const getAmenitiesFromBusType = (busType: string): string[] => {
+    const amenities: string[] = [];
+    if (busType.includes('Sleeper')) {
+      amenities.push('Sleeper');
+    }
+    if (busType.includes('Seater')) {
+      amenities.push('Seater');
+    }
+    if (busType.includes('Luxury') || busType.includes('Deluxe')) {
+      amenities.push('Premium');
+    }
+    return amenities;
+  };
+
+  // Use real bus data if available, otherwise fallback to mock data
+  const realBuses: Bus[] = searchData.busData?.flatMap(platformData => 
+    platformData.buses.map(busData => ({
+      ...convertBusData(busData),
+      platform: platformData.platform || 'abhibus'
+    }))
+  ) || [];
+  
+  // Debug logging
+  console.log('SearchResults - busData:', searchData.busData);
+  console.log('SearchResults - realBuses count:', realBuses.length);
+  console.log('SearchResults - realBuses:', realBuses);
   const mockBuses: Bus[] = [
     {
       id: '1',
@@ -94,20 +225,61 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchData }) => {
   ];
 
   const platformData = {
-    abhibus: { name: 'AbhiBus', color: 'bg-red-500', count: 1 },
-    makemytrip: { name: 'MakeMyTrip', color: 'bg-blue-500', count: 1 },
-    paytm: { name: 'Paytm', color: 'bg-purple-500', count: 1 },
-    goibibo: { name: 'Goibibo', color: 'bg-green-500', count: 1 }
+    abhibus: { 
+      name: 'AbhiBus', 
+      color: 'bg-red-500', 
+      count: searchData.busData?.find(p => p.platform === 'abhibus')?.total_buses || 
+             realBuses.filter(bus => bus.platform === 'abhibus').length || 0 
+    },
+    makemytrip: { 
+      name: 'MakeMyTrip', 
+      color: 'bg-blue-500', 
+      count: searchData.busData?.find(p => p.platform === 'makemytrip')?.total_buses || 
+             realBuses.filter(bus => bus.platform === 'makemytrip').length || 0 
+    },
+    paytm: { 
+      name: 'Paytm', 
+      color: 'bg-purple-500', 
+      count: searchData.busData?.find(p => p.platform === 'paytm')?.total_buses || 
+             realBuses.filter(bus => bus.platform === 'paytm').length || 0 
+    },
+    goibibo: { 
+      name: 'Goibibo', 
+      color: 'bg-green-500', 
+      count: searchData.busData?.find(p => p.platform === 'goibibo')?.total_buses || 
+             realBuses.filter(bus => bus.platform === 'goibibo').length || 0 
+    }
   };
 
   const getFilteredBuses = (platform?: keyof typeof platformData) => {
-    let filtered = platform ? mockBuses.filter(bus => bus.platform === platform) : mockBuses;
+    // Use real buses if available, otherwise fallback to mock buses
+    const busesToUse = realBuses.length > 0 ? realBuses : mockBuses;
+    let filtered = platform ? busesToUse.filter(bus => bus.platform === platform) : busesToUse;
     
     // Apply filters
     filtered = filtered.filter(bus => 
       bus.price >= filters.priceRange[0] && 
       bus.price <= filters.priceRange[1]
     );
+
+    // Apply departure time filter
+    if (filters.departureTime !== 'any') {
+      filtered = filtered.filter(bus => {
+        const hour = parseInt(bus.departureTime.split(':')[0]);
+        switch (filters.departureTime) {
+          case 'morning':
+            return hour >= 6 && hour < 12;
+          case 'afternoon':
+            return hour >= 12 && hour < 18;
+          case 'evening':
+            return hour >= 18 && hour < 22;
+          case 'night':
+            return hour >= 22 || hour < 6;
+          default:
+            return true;
+        }
+      });
+    }
 
     if (filters.busType !== 'any') {
       filtered = filtered.filter(bus => bus.busType.toLowerCase().includes(filters.busType.toLowerCase()));
@@ -122,10 +294,22 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchData }) => {
       switch (sortBy) {
         case 'price':
           return a.price - b.price;
+        case 'price-high':
+          return b.price - a.price;
         case 'duration':
-          return parseFloat(a.duration) - parseFloat(b.duration);
+          // Parse duration like "4h 10m" to minutes for comparison
+          const parseDuration = (duration: string) => {
+            const match = duration.match(/(\d+)h\s*(\d+)m/);
+            if (match) {
+              return parseInt(match[1]) * 60 + parseInt(match[2]);
+            }
+            return 0;
+          };
+          return parseDuration(a.duration) - parseDuration(b.duration);
         case 'departure':
           return a.departureTime.localeCompare(b.departureTime);
+        case 'departure-late':
+          return b.departureTime.localeCompare(a.departureTime);
         default:
           return 0;
       }
@@ -135,7 +319,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchData }) => {
   };
 
   const getBestPrice = () => {
-    const prices = mockBuses.map(bus => bus.price);
+    const busesToUse = realBuses.length > 0 ? realBuses : mockBuses;
+    const prices = busesToUse.map(bus => bus.price);
     return Math.min(...prices);
   };
 
@@ -155,10 +340,6 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchData }) => {
           <div className="lg:col-span-3">
             <h3 className="font-semibold text-foreground">{bus.operator}</h3>
             <p className="text-sm text-muted-foreground">{bus.busType}</p>
-            <div className="flex items-center mt-1">
-              <Star className="w-3 h-3 text-yellow-500 mr-1" />
-              <span className="text-sm">{bus.rating}</span>
-            </div>
           </div>
 
           {/* Timing */}
@@ -226,17 +407,135 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchData }) => {
   return (
     <div className="w-full max-w-7xl mx-auto px-4">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-foreground">
-          {searchData.source} → {searchData.destination}
-        </h2>
-        <p className="text-muted-foreground">
-          {searchData.date.toLocaleDateString('en-IN', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          })}
-        </p>
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">
+              {searchData.source} → {searchData.destination}
+            </h2>
+            <p className="text-muted-foreground">
+              {searchData.date.toLocaleDateString('en-IN', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
+            </p>
+          </div>
+          
+          {/* Search Form */}
+          <div className="flex flex-col sm:flex-row gap-3 p-4 bg-card border rounded-lg">
+            <div className="relative flex-1">
+              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="From"
+                value={newSearchSource}
+                onChange={(e) => {
+                  setNewSearchSource(e.target.value);
+                  debouncedSourceSearch(e.target.value);
+                }}
+                onFocus={() => setShowSourceSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSourceSuggestions(false), 200)}
+                className="pl-10"
+              />
+              {showSourceSuggestions && sourceSuggestions.length > 0 && (
+                <Card className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-auto bg-popover border shadow-lg">
+                  {sourceSuggestions.map(city => (
+                    <div 
+                      key={city.id} 
+                      className="p-3 hover:bg-accent cursor-pointer transition-smooth" 
+                      onClick={() => {
+                        setNewSearchSource(city.name);
+                        setShowSourceSuggestions(false);
+                      }}
+                    >
+                      <div className="font-medium">{city.name}</div>
+                      {city.state && <div className="text-sm text-muted-foreground">{city.state}</div>}
+                    </div>
+                  ))}
+                </Card>
+              )}
+            </div>
+            
+            <div className="relative flex-1">
+              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="To"
+                value={newSearchDestination}
+                onChange={(e) => {
+                  setNewSearchDestination(e.target.value);
+                  debouncedDestinationSearch(e.target.value);
+                }}
+                onFocus={() => setShowDestinationSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowDestinationSuggestions(false), 200)}
+                className="pl-10"
+              />
+              {showDestinationSuggestions && destinationSuggestions.length > 0 && (
+                <Card className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-auto bg-popover border shadow-lg">
+                  {destinationSuggestions.map(city => (
+                    <div 
+                      key={city.id} 
+                      className="p-3 hover:bg-accent cursor-pointer transition-smooth" 
+                      onClick={() => {
+                        setNewSearchDestination(city.name);
+                        setShowDestinationSuggestions(false);
+                      }}
+                    >
+                      <div className="font-medium">{city.name}</div>
+                      {city.state && <div className="text-sm text-muted-foreground">{city.state}</div>}
+                    </div>
+                  ))}
+                </Card>
+              )}
+            </div>
+            
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full sm:w-auto justify-start text-left font-normal">
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {format(newSearchDate, "PPP")}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={newSearchDate}
+                  onSelect={(date) => date && setNewSearchDate(date)}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            
+            <Button 
+              onClick={handleNewSearch} 
+              disabled={isSearching || !newSearchSource.trim() || !newSearchDestination.trim()}
+              className="w-full sm:w-auto"
+            >
+              {isSearching ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Searching...
+                </>
+              ) : (
+                <>
+                  <Search className="w-4 h-4 mr-2" />
+                  Search
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+        
+        {/* Show warning if only one platform returned data */}
+        {searchData.busData && searchData.busData.length === 1 && (
+          <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-yellow-800 text-sm">
+              ⚠️ Only {searchData.busData[0].platform === 'abhibus' ? 'AbhiBus' : 'MakeMyTrip'} data is available. 
+              {searchData.busData[0].platform === 'abhibus' ? 'MakeMyTrip' : 'AbhiBus'} is currently unavailable.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -256,7 +555,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchData }) => {
             <TabsList className="grid w-full grid-cols-5 mb-6">
               <TabsTrigger value="all" className="flex items-center space-x-2">
                 <span>All</span>
-                <Badge variant="secondary">{mockBuses.length}</Badge>
+                <Badge variant="secondary">{realBuses.length > 0 ? realBuses.length : mockBuses.length}</Badge>
               </TabsTrigger>
               
               {Object.entries(platformData).map(([key, platform]) => (
@@ -269,7 +568,20 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchData }) => {
 
             <TabsContent value="all">
               <div className="space-y-4">
-                {getFilteredBuses().map(renderBusCard)}
+                {getFilteredBuses().length > 0 ? (
+                  <>
+                    <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-blue-800">
+                        Showing {getFilteredBuses().length} of {realBuses.length > 0 ? realBuses.length : mockBuses.length} buses
+                      </p>
+                    </div>
+                    {getFilteredBuses().map(renderBusCard)}
+                  </>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">No buses found matching your criteria</p>
+                  </div>
+                )}
               </div>
             </TabsContent>
 

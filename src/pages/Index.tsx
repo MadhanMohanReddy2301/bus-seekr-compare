@@ -2,15 +2,22 @@ import React, { useState } from 'react';
 import { Bus, MapPin, Star, Users, Calendar } from 'lucide-react';
 import SearchForm from '@/components/SearchForm';
 import SearchResults from '@/components/SearchResults';
+import { BusSearchResponse } from '@/config/api';
 
 const Index = () => {
   const [searchData, setSearchData] = useState<{
     source: string;
     destination: string;
     date: Date;
+    busData?: BusSearchResponse[];
   } | null>(null);
 
-  const handleSearch = (data: { source: string; destination: string; date: Date }) => {
+  const handleSearch = (data: { 
+    source: string; 
+    destination: string; 
+    date: Date;
+    busData?: BusSearchResponse[];
+  }) => {
     setSearchData(data);
   };
 
