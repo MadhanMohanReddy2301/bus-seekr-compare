@@ -10,10 +10,10 @@
     --background: 240 10% 99%;
     --foreground: 215 25% 15%;
 
-    /* Brand colors - Travel industry inspired */
-    --primary: 210 98% 48%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 210 98% 65%;
+    /* Brand colors - Elegant navy blue */
+    --primary: 213 100% 20%;
+    --primary-foreground: 0 0% 98%;
+    --primary-glow: 213 80% 65%;
     
     --secondary: 25 95% 53%;
     --secondary-foreground: 0 0% 100%;
@@ -45,17 +45,18 @@
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
     
-    /* Gradients */
+    /* Gradients - Classic and sophisticated */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-hero: linear-gradient(135deg, hsl(210 98% 48%), hsl(25 95% 53%));
+    --gradient-hero: linear-gradient(135deg, hsl(213 100% 15%), hsl(213 80% 25%), hsl(213 60% 35%));
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(210 40% 98%));
     
-    /* Shadows */
+    /* Shadows - Elegant and subtle */
     --shadow-sm: 0 1px 2px 0 hsl(var(--primary) / 0.05);
     --shadow-md: 0 4px 6px -1px hsl(var(--primary) / 0.1), 0 2px 4px -1px hsl(var(--primary) / 0.06);
-    --shadow-lg: 0 10px 15px -3px hsl(var(--primary) / 0.1), 0 4px 6px -2px hsl(var(--primary) / 0.05);
+    --shadow-lg: 0 8px 25px -8px hsl(var(--primary) / 0.15);
     --shadow-xl: 0 20px 25px -5px hsl(var(--primary) / 0.1), 0 10px 10px -5px hsl(var(--primary) / 0.04);
-    --shadow-glow: 0 0 40px hsl(var(--primary) / 0.15);
+    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.2);
+    --shadow-elevated: 0 8px 32px -8px hsl(var(--primary) / 0.1);
     
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -145,6 +146,10 @@
   
   .shadow-glow {
     box-shadow: var(--shadow-glow);
+  }
+  
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
   }
   
   .transition-smooth {

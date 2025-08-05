@@ -59,16 +59,21 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="hero-gradient relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 py-24">
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center space-x-3 mb-6">
-              <Bus className="w-12 h-12 text-white" />
-              <h1 className="text-5xl font-bold text-white">BusScanner</h1>
+      <section className="hero-gradient relative overflow-hidden min-h-[80vh] flex items-center">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent"></div>
+        <div className="relative max-w-7xl mx-auto px-4 py-24 w-full">
+          <div className="text-center mb-16">
+            <div className="flex items-center justify-center space-x-4 mb-8">
+              <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-sm">
+                <Bus className="w-16 h-16 text-white" />
+              </div>
+              <h1 className="text-6xl font-bold text-white tracking-tight">
+                Bus<span className="text-primary-glow">Scanner</span>
+              </h1>
             </div>
-            <p className="text-xl text-white/90 max-w-2xl mx-auto">
-              Compare bus tickets across all major booking platforms in India. 
+            <p className="text-2xl text-white/95 max-w-3xl mx-auto leading-relaxed font-light">
+              Compare bus tickets across all major booking platforms in India.<br />
               Find the best prices, timings, and comfort - all in one place.
             </p>
           </div>
@@ -79,55 +84,55 @@ const Index = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-background">
+      <section className="py-24 bg-gradient-to-b from-background to-muted/30">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-foreground mb-6">
               Why Choose BusScanner?
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              We make bus booking simple by bringing together all major platforms
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              We make bus booking simple by bringing together all major platforms with a beautiful, intuitive interface
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="bg-primary/10 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <MapPin className="w-8 h-8 text-primary" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center group">
+              <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-6 rounded-2xl w-20 h-20 mx-auto mb-6 flex items-center justify-center group-hover:shadow-travel transition-all duration-300 group-hover:scale-105">
+                <MapPin className="w-10 h-10 text-primary" />
               </div>
-              <h3 className="font-semibold mb-2">All Routes Covered</h3>
-              <p className="text-sm text-muted-foreground">
-                Search across 1000+ cities and towns in India
+              <h3 className="text-xl font-semibold mb-3 text-foreground">All Routes Covered</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Search across 1000+ cities and towns throughout India
               </p>
             </div>
 
-            <div className="text-center">
-              <div className="bg-primary/10 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <Star className="w-8 h-8 text-primary" />
+            <div className="text-center group">
+              <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-6 rounded-2xl w-20 h-20 mx-auto mb-6 flex items-center justify-center group-hover:shadow-travel transition-all duration-300 group-hover:scale-105">
+                <Star className="w-10 h-10 text-primary" />
               </div>
-              <h3 className="font-semibold mb-2">Best Prices</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="text-xl font-semibold mb-3 text-foreground">Best Prices</h3>
+              <p className="text-muted-foreground leading-relaxed">
                 Compare prices across AbhiBus, MakeMyTrip, Paytm & Goibibo
               </p>
             </div>
 
-            <div className="text-center">
-              <div className="bg-primary/10 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <Users className="w-8 h-8 text-primary" />
+            <div className="text-center group">
+              <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-6 rounded-2xl w-20 h-20 mx-auto mb-6 flex items-center justify-center group-hover:shadow-travel transition-all duration-300 group-hover:scale-105">
+                <Users className="w-10 h-10 text-primary" />
               </div>
-              <h3 className="font-semibold mb-2">Trusted Platform</h3>
-              <p className="text-sm text-muted-foreground">
-                Secure booking through verified partners
+              <h3 className="text-xl font-semibold mb-3 text-foreground">Trusted Platform</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Secure booking through verified and trusted partners
               </p>
             </div>
 
-            <div className="text-center">
-              <div className="bg-primary/10 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <Calendar className="w-8 h-8 text-primary" />
+            <div className="text-center group">
+              <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-6 rounded-2xl w-20 h-20 mx-auto mb-6 flex items-center justify-center group-hover:shadow-travel transition-all duration-300 group-hover:scale-105">
+                <Calendar className="w-10 h-10 text-primary" />
               </div>
-              <h3 className="font-semibold mb-2">Easy Booking</h3>
-              <p className="text-sm text-muted-foreground">
-                Book tickets in just a few clicks
+              <h3 className="text-xl font-semibold mb-3 text-foreground">Easy Booking</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Book tickets in just a few simple clicks
               </p>
             </div>
           </div>
@@ -135,14 +140,14 @@ const Index = () => {
       </section>
 
       {/* Popular Routes */}
-      <section className="py-16 bg-muted/50">
+      <section className="py-24 bg-gradient-to-b from-muted/30 to-background">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-foreground mb-6">
               Popular Bus Routes
             </h2>
-            <p className="text-muted-foreground">
-              Most searched routes by travelers
+            <p className="text-lg text-muted-foreground">
+              Most searched routes by travelers across India
             </p>
           </div>
 
@@ -159,11 +164,11 @@ const Index = () => {
             ].map((route) => (
               <div
                 key={route}
-                className="bg-card p-4 rounded-lg border hover:shadow-md transition-smooth cursor-pointer"
+                className="bg-card p-6 rounded-xl border hover:shadow-elevated transition-all duration-300 cursor-pointer group hover:border-primary/20 hover:-translate-y-1"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">{route}</span>
-                  <Bus className="w-4 h-4 text-muted-foreground" />
+                  <span className="font-semibold text-foreground group-hover:text-primary transition-colors">{route}</span>
+                  <Bus className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                 </div>
               </div>
             ))}
@@ -172,14 +177,18 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-card border-t py-8">
+      <footer className="bg-primary/5 border-t py-12">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Bus className="w-6 h-6 text-primary" />
-            <span className="font-bold text-xl">BusScanner</span>
+          <div className="flex items-center justify-center space-x-3 mb-6">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Bus className="w-8 h-8 text-primary" />
+            </div>
+            <span className="font-bold text-2xl text-foreground">
+              Bus<span className="text-primary">Scanner</span>
+            </span>
           </div>
-          <p className="text-muted-foreground">
-            Your one-stop platform for comparing bus tickets across India
+          <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+            Your one-stop platform for comparing bus tickets across India with style and elegance
           </p>
         </div>
       </footer>

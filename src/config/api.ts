@@ -241,16 +241,20 @@ export const busSearchApi = {
       console.log('Goibibo result:', goibiboData);
       const results: BusSearchResponse[] = [];
       if (abhiBusData.status === 'fulfilled') {
-        results.push({ ...abhiBusData.value, platform: 'abhibus' });
+        const result = abhiBusData.value as BusSearchResponse;
+        results.push({ ...result, platform: 'abhibus' as const });
       }
       if (makeMyTripData.status === 'fulfilled') {
-        results.push({ ...makeMyTripData.value, platform: 'makemytrip' });
+        const result = makeMyTripData.value as BusSearchResponse;
+        results.push({ ...result, platform: 'makemytrip' as const });
       }
       if (paytmData.status === 'fulfilled') {
-        results.push({ ...paytmData.value, platform: 'paytm' });
+        const result = paytmData.value as BusSearchResponse;
+        results.push({ ...result, platform: 'paytm' as const });
       }
       if (goibiboData.status === 'fulfilled') {
-        results.push({ ...goibiboData.value, platform: 'goibibo' });
+        const result = goibiboData.value as BusSearchResponse;
+        results.push({ ...result, platform: 'goibibo' as const });
       }
       return results;
     } catch (error) {
