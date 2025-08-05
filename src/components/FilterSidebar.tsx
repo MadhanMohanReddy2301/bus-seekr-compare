@@ -20,7 +20,7 @@ interface FilterSidebarProps {
     operator: string;
   }) => void;
   sortBy: string;
-  onSortChange: (sortBy: 'price' | 'duration' | 'departure') => void;
+  onSortChange: (sortBy: 'price' | 'price-high' | 'duration' | 'departure' | 'departure-late') => void;
 }
 
 const FilterSidebar: React.FC<FilterSidebarProps> = ({
@@ -40,38 +40,40 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   };
 
   return (
-    <Card className="p-4 h-fit sticky top-4">
-      <div className="space-y-6">
+    <Card className="p-6 h-fit sticky top-4">
+      <div className="space-y-8">
         {/* Sort Section */}
         <div>
-          <div className="flex items-center space-x-2 mb-3">
-            <SlidersHorizontal className="w-4 h-4" />
-            <Label className="font-semibold">Sort By</Label>
+          <div className="flex items-center space-x-2 mb-4">
+            <SlidersHorizontal className="w-5 h-5 text-primary" />
+            <Label className="font-semibold text-lg">Sort By</Label>
           </div>
           <Select value={sortBy} onValueChange={onSortChange}>
-            <SelectTrigger>
+            <SelectTrigger className="h-12">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="price">Price (Low to High)</SelectItem>
-              <SelectItem value="duration">Duration</SelectItem>
-              <SelectItem value="departure">Departure Time</SelectItem>
+              <SelectItem value="price-high">Price (High to Low)</SelectItem>
+              <SelectItem value="duration">Duration (Shortest)</SelectItem>
+              <SelectItem value="departure">Departure Time (Early)</SelectItem>
+              <SelectItem value="departure-late">Departure Time (Late)</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        <Separator />
+        <Separator className="my-6" />
 
         {/* Filter Section */}
         <div>
-          <div className="flex items-center space-x-2 mb-4">
-            <Filter className="w-4 h-4" />
-            <Label className="font-semibold">Filters</Label>
+          <div className="flex items-center space-x-2 mb-6">
+            <Filter className="w-5 h-5 text-primary" />
+            <Label className="font-semibold text-lg">Filters</Label>
           </div>
 
           {/* Price Range */}
-          <div className="space-y-3 mb-6">
-            <Label>Price Range</Label>
+          <div className="space-y-4 mb-8">
+            <Label className="text-base font-medium">Price Range</Label>
             <div className="px-2">
               <Slider
                 value={filters.priceRange}
@@ -81,7 +83,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                 step={50}
                 className="w-full"
               />
-              <div className="flex justify-between text-sm text-muted-foreground mt-1">
+              <div className="flex justify-between text-sm text-muted-foreground mt-2">
                 <span>₹{filters.priceRange[0]}</span>
                 <span>₹{filters.priceRange[1]}</span>
               </div>
@@ -89,13 +91,13 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
           </div>
 
           {/* Departure Time */}
-          <div className="space-y-3 mb-6">
-            <Label>Departure Time</Label>
+          <div className="space-y-4 mb-8">
+            <Label className="text-base font-medium">Departure Time</Label>
             <Select 
               value={filters.departureTime} 
               onValueChange={(value) => updateFilter('departureTime', value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-12">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -109,13 +111,13 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
           </div>
 
           {/* Bus Type */}
-          <div className="space-y-3 mb-6">
-            <Label>Bus Type</Label>
+          <div className="space-y-4 mb-8">
+            <Label className="text-base font-medium">Bus Type</Label>
             <Select 
               value={filters.busType} 
               onValueChange={(value) => updateFilter('busType', value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-12">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -130,13 +132,13 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
           </div>
 
           {/* Bus Operator */}
-          <div className="space-y-3">
-            <Label>Bus Operator</Label>
+          <div className="space-y-4">
+            <Label className="text-base font-medium">Bus Operator</Label>
             <Select 
               value={filters.operator} 
               onValueChange={(value) => updateFilter('operator', value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-12">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
